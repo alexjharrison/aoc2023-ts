@@ -1,13 +1,18 @@
 import run from "aocrunner"
 
 const parseInput = (rawInput: string) =>
-  rawInput
-    .split('\n')
-    .map(line => line.split(': ')[1]
+  rawInput.split("\n").map((line) =>
+    line
+      .split(": ")[1]
       .trim()
-      .split(' | ')
-      .map(line => line
-        .split(' ').map(val => val.trim()).filter(val => val)))
+      .split(" | ")
+      .map((line) =>
+        line
+          .split(" ")
+          .map((val) => val.trim())
+          .filter((val) => val),
+      ),
+  )
 
 const part1 = (rawInput: string) => {
   const input = parseInput(rawInput)
@@ -18,30 +23,28 @@ const part1 = (rawInput: string) => {
     for (const your of yours) {
       if (winnings.includes(your)) matches++
     }
-    if (matches)
-      sum += 2 ** (matches - 1)
+    if (matches) sum += 2 ** (matches - 1)
   }
   return sum
 }
 
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput)
-  const extras: number[] = input.map(_ => 1)
-  for (const idx in input) {
+  const extras: number[] = input.map((_) => 1)
+  for (const idx in extras) {
     let matches = 0
     const card = input[idx]
     const [winnings, yours] = card
     for (const your of yours) {
       if (winnings.includes(your)) matches++
     }
-
-    // Need to exponentially increase here
-
-    // for (let i = 0; i < i + matches; i++) {
-    //   console.log({ extras, idx, matches })
-    //   extras[idx]++
-    // }
+    for (let j = 0; j < extras[idx]; j++) {
+      for (let i = +idx + 1; i < +idx + matches + 1; i++) {
+        extras[i]++
+      }
+    }
   }
+  console.log({ extras })
   return extras.reduce((sum, num) => sum + num, 0)
 }
 
