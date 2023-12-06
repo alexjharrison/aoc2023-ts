@@ -2,49 +2,53 @@ import run from "aocrunner"
 import { Grid, Point } from "../utils/grid.js"
 
 const parseInput = (rawInput: string) => {
-  const lines = rawInput.split("/n")
+  const lines = rawInput.split("\n")
   const grid = new Grid(lines.map((line) => line.split("")))
   grid.draw()
   return grid
 }
 
 const part1 = (rawInput: string) => {
-  const seenCoords = new Set<Point>()
+  const seenCoords = new Set<Point<string>>()
   const nums: number[] = []
   const grid = parseInput(rawInput)
-  for (const row of grid.points) {
-    for (const pt of row) {
-      if (!pt.isEmpty() && !pt.isNumber()) {
-        ;[
-          grid.getAbove,
-          grid.getTopRight,
-          grid.getRight,
-          grid.getBottomRight,
-          grid.getBelow,
-          grid.getBottomLeft,
-          grid.getLeft,
-          grid.getTopLeft,
-        ].forEach((func) => {
-          const neighbor = func(pt)
-          if (!neighbor) return
-          const result = grid.getNumber(neighbor)
-          if (!result) return
-          const { number, points } = result
-          points.forEach((pt) => seenCoords.add(pt))
-          if (points.some((pt) => seenCoords.has(pt))) return
-          nums.push(number)
-        })
+  grid
+    .pointsList()
+    .filter((pt) => !pt.isNumber() && !pt.isEmpty())
+    .forEach((pt) => {
+      const neighbors = grid.getAllNeighbors(pt)
+      for (const neighbor of neighbors) {
+        if (!neighbor || seenCoords.has(neighbor)) continue
+        const { number, points } = grid.getNumber(neighbor)
+        for (const point of points) seenCoords.add(point)
+        if (number !== null) nums.push(number)
       }
-    }
-  }
-  console.log({ nums })
-  return
+    })
+
+  return nums.reduce((sum, num) => sum + num, 0)
 }
 
 const part2 = (rawInput: string) => {
-  const input = parseInput(rawInput)
+  const grid = parseInput(rawInput)
+  const seenCoords = new Set<Point<string>>()
+  const nums: number[] = []
+  grid
+    .pointsList()
+    .filter((pt) => pt.val === "*")
+    .forEach((pt) => {
+      const neighbors = grid.getAllNeighbors(pt)
+      const neighborNums: number[] = []
+      for (const neighbor of neighbors) {
+        if (!neighbor || seenCoords.has(neighbor)) continue
+        const { number, points } = grid.getNumber(neighbor)
+        for (const point of points) seenCoords.add(point)
+        if (number !== null) neighborNums.push(number)
+      }
+      if (neighborNums.length === 2)
+        nums.push(neighborNums[0] * neighborNums[1])
+    })
 
-  return
+  return nums.reduce((sum, num) => sum + num, 0)
 }
 
 run({
@@ -70,10 +74,21 @@ run({
   },
   part2: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `
+        467..114..
+        ...*......
+        ..35..633.
+        ......#...
+        617*......
+        .....+.58.
+        ..592.....
+        ......755.
+        ...$.*....
+        .664.598..
+        `,
+        expected: 467835,
+      },
     ],
     solution: part2,
   },

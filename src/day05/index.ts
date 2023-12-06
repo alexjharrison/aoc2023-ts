@@ -64,6 +64,26 @@ function getYfromX(
   return input
 }
 
+function getXfromY(
+  source: Things,
+  destination: Things,
+  conversions: Conversions,
+  input: number,
+): number {
+  const key = `${destination}-${source}` as keyof Conversions
+  const ranges = conversions[key]
+
+  for (const convert of ranges || []) {
+    const { destinationStart, range, sourceStart: st } = convert
+    if (input >= destinationStart && input < destinationStart + range) {
+      const offset = input - destinationStart
+      const output = st + offset
+      return output
+    }
+  }
+  return input
+}
+
 const part1 = (rawInput: string) => {
   const input = parseInput(rawInput)
   const finalValues = []
@@ -85,13 +105,7 @@ const part1 = (rawInput: string) => {
 }
 
 const part2 = (rawInput: string) => {
-  type Cache = {
-    [k in Things]?: Record<number, number>
-  }
-  const cache: Cache = {}
-
   const input = parseInput(rawInput)
-  let finalValue = Infinity
 
   const seedRanges = input.seeds?.reduce<[number, number][]>(
     (acc, seed, i, arr) => {
@@ -101,37 +115,28 @@ const part2 = (rawInput: string) => {
     },
     [],
   )
-  for (const seeds of seedRanges || []) {
-    for (let i = seeds[0]; i < seeds[0] + seeds[1]; i++) {
-      let cacheLocations: { [k in Things]?: number } = {}
-      let currentVal = i
-      for (let thingIdx = 1; thingIdx < things.length; thingIdx++) {
-        const sourceKey = things[thingIdx - 1]
-        const destKey = things[thingIdx]
+  let i = 0
+  while (true) {
+    let currentVal = i
+    for (let thingIdx = 1; thingIdx < things.length; thingIdx++) {
+      const reversedThings = things.toReversed()
+      const sourceKey = reversedThings[thingIdx - 1]
+      const destKey = reversedThings[thingIdx]
 
-        if (typeof cache[sourceKey]?.[currentVal] === "number") {
-          currentVal = cache[sourceKey]![currentVal] as number
-          console.log(`cached: ${sourceKey}: ${currentVal}`)
-          break
-        }
-
-        cacheLocations[sourceKey] = currentVal
-
-        currentVal = getYfromX(
-          sourceKey,
-          destKey,
-          input.conversionsMap,
-          currentVal,
-        )
-      }
-      for (const [thing, stepValue] of Object.entries(cacheLocations)) {
-        const typedThing = thing as Things
-        if (!cache[typedThing]) cache[typedThing] = {}
-        cache[typedThing]![stepValue] = currentVal
-      }
-      finalValue = Math.min(finalValue, currentVal)
+      currentVal = getXfromY(
+        sourceKey,
+        destKey,
+        input.conversionsMap,
+        currentVal,
+      )
     }
-    return finalValue
+
+    for (const [startVal, range] of seedRanges || []) {
+      if (currentVal >= startVal && currentVal < startVal + range) {
+        return i
+      }
+    }
+    i++
   }
 }
 
