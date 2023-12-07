@@ -130,7 +130,6 @@ const part2 = (rawInput: string) => {
         currentVal,
       )
     }
-
     for (const [startVal, range] of seedRanges || []) {
       if (currentVal >= startVal && currentVal < startVal + range) {
         return i
