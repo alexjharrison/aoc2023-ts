@@ -1,3 +1,4 @@
+import "@total-typescript/ts-reset"
 import run from "aocrunner"
 import { Grid, Point } from "../utils/grid.js"
 

@@ -1,3 +1,4 @@
+import "@total-typescript/ts-reset"
 import run from "aocrunner"
 
 const map = {

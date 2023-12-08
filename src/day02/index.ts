@@ -1,3 +1,4 @@
+import "@total-typescript/ts-reset"
 import run from "aocrunner"
 
 type Colors = {
@@ -7,19 +8,22 @@ type Colors = {
 }
 
 const parseInput = (rawInput: string) => {
-  const lines = rawInput.split('\n')
-  return lines.map(line => {
-    const [idStr, valStr] = line.split(': ')
-    const id = Number(idStr.split(' ')[1])
-    const rolls: Colors[] = valStr.split('; ').map(roll => {
-      const cubes = roll.split(', ')
-      return cubes.reduce((obj, cube) => {
-        const [num, color] = cube.split(' ')
-        return {
-          ...obj,
-          [color]: Number(num)
-        }
-      }, { blue: 0, green: 0, red: 0 })
+  const lines = rawInput.split("\n")
+  return lines.map((line) => {
+    const [idStr, valStr] = line.split(": ")
+    const id = Number(idStr.split(" ")[1])
+    const rolls: Colors[] = valStr.split("; ").map((roll) => {
+      const cubes = roll.split(", ")
+      return cubes.reduce(
+        (obj, cube) => {
+          const [num, color] = cube.split(" ")
+          return {
+            ...obj,
+            [color]: Number(num),
+          }
+        },
+        { blue: 0, green: 0, red: 0 },
+      )
     })
     return { [id]: [...rolls] }
   })
@@ -30,7 +34,7 @@ const part1 = (rawInput: string) => {
   const maxes: Colors = {
     red: 12,
     green: 13,
-    blue: 14
+    blue: 14,
   }
   console.dir({ input }, { depth: null })
   return input.reduce((sum, values) => {
@@ -38,10 +42,9 @@ const part1 = (rawInput: string) => {
     const colorsSet = Object.values(Object.values(values)[0]) // <-- This is wrong. only checking first one. needs to check all
     console.dir({ gameNum, colorsSet }, { depth: null })
     for (const colors of colorsSet) {
-
       for (const [color, occurences] of Object.entries(colors)) {
         if (occurences > maxes[color]) {
-          console.log('bad', occurences, color, maxes[color])
+          console.log("bad", occurences, color, maxes[color])
           return sum
         }
       }
@@ -51,14 +54,15 @@ const part1 = (rawInput: string) => {
 }
 
 const part2 = (rawInput: string) => {
-  const input = parseInput(rawInput).flatMap(game => Object.values(game))
+  const input = parseInput(rawInput).flatMap((game) => Object.values(game))
   let sum = 0
   for (const game of input) {
     const max: Colors = { blue: 0, green: 0, red: 0 }
     for (const roll of game) {
       for (const [color, occurences] of Object.entries(roll)) {
         const makeTSHappyColor = color as keyof Colors
-        if (max[makeTSHappyColor] < occurences) max[makeTSHappyColor] = occurences
+        if (max[makeTSHappyColor] < occurences)
+          max[makeTSHappyColor] = occurences
       }
     }
     const product = max.blue * max.green * max.red
