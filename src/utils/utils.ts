@@ -10,3 +10,5 @@ export const rng = (lo: number, hi: number) =>
   [...Array(hi - lo + 1)].map((_, i) => lo + i)
 
 export const lcmRng = (lo: number, hi: number) => lcmAll(rng(lo, hi))
+
+export const range = (num: number) => new Array(num).fill(null).map((_, i) => i)
