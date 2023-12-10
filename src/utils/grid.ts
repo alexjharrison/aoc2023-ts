@@ -42,7 +42,7 @@ export class Grid<T> {
       console.log("")
     }
   }
-  public pointsList = () => this.points.flatMap((row) => row)
+  public pointsList = () => this.points.flatMap(row => row)
   public getPoint = (x: number, y: number) => this.points[y][x]
   public getLeft = (pt: Point<T>) =>
     pt.x === 0 ? null : this.getPoint(pt.x - 1, pt.y)
@@ -76,18 +76,22 @@ export class Grid<T> {
     if (!below || !right) return null
     return this.getPoint(right.x, below.y)
   }
-  public getAllNeighbors = (pt: Point<T>) => {
-    return [
-      this.getAbove(pt),
-      this.getTopRight(pt),
-      this.getRight(pt),
-      this.getBottomRight(pt),
-      this.getBelow(pt),
-      this.getBottomLeft(pt),
-      this.getLeft(pt),
-      this.getTopLeft(pt),
-    ]
-  }
+  public getAdjacentNeighbors = (pt: Point<T>) => [
+    this.getAbove(pt),
+    this.getRight(pt),
+    this.getBelow(pt),
+    this.getLeft(pt),
+  ]
+  public getAllNeighbors = (pt: Point<T>) => [
+    this.getAbove(pt),
+    this.getTopRight(pt),
+    this.getRight(pt),
+    this.getBottomRight(pt),
+    this.getBelow(pt),
+    this.getBottomLeft(pt),
+    this.getLeft(pt),
+    this.getTopLeft(pt),
+  ]
   public getNumber = (pt: Point<T>) => {
     let here = this.getPoint(pt.x, pt.y)
     if (!here.isNumber()) return { number: null, points: [here] }
