@@ -12,3 +12,15 @@ export const rng = (lo: number, hi: number) =>
 export const lcmRng = (lo: number, hi: number) => lcmAll(rng(lo, hi))
 
 export const range = (num: number) => new Array(num).fill(null).map((_, i) => i)
+
+export const setIntersection = <T>(sets: Set<T>[]): Set<T> => {
+  const output = sets[0]
+  for (const set of sets) {
+    for (const val of output) {
+      if (!set.has(val)) {
+        output.delete(val)
+      }
+    }
+  }
+  return output
+}
