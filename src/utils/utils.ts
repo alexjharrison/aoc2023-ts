@@ -24,3 +24,6 @@ export const setIntersection = <T>(sets: Set<T>[]): Set<T> => {
   }
   return output
 }
+
+export const areArrsEq = <T>(arr1: T[], arr2: T[]) =>
+  arr1.every(val => arr2.includes(val))
