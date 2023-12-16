@@ -27,3 +27,6 @@ export const setIntersection = <T>(sets: Set<T>[]): Set<T> => {
 
 export const areArrsEq = <T>(arr1: T[], arr2: T[]) =>
   arr1.every(val => arr2.includes(val))
+
+export const enumerate = <T>(arr: T[]): [number, T][] =>
+  arr.map((val, i) => [i, val])

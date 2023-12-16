@@ -1,5 +1,6 @@
 import "@total-typescript/ts-reset"
 import run from "aocrunner"
+import { range, sum } from "../utils/utils.js"
 
 const parseInput = (rawInput: string) => {
   const lines = rawInput.split("\n")
@@ -9,70 +10,51 @@ const parseInput = (rawInput: string) => {
   return sequences.map((seq, i) => ({ sequence: seq, sizes: sizesList[i] }))
 }
 
-function countValidConfigs(
-  substr: string,
-  sizes: number[],
-  requiredsRemaining: number,
-  count = 0,
-): number {
-  console.log({ substr, sizes, requiredsRemaining, count })
-  if (sizes.length === 0) return requiredsRemaining === 0 ? count + 1 : count
+function countSequences(sequence: string, sizes: number[], count = 0): number {
+  const idx = sequence.indexOf("?")
 
-  if (substr[0] === ".")
-    return countValidConfigs(substr.slice(1), sizes, requiredsRemaining, count)
+  if (idx === -1) {
+    const sizesSorted = sizes
+    const sequenceSorted = sequence
+      .split(".")
+      .filter(arr => arr.length > 0)
+      .map(chars => chars.length)
+    const matches =
+      JSON.stringify(sizesSorted) === JSON.stringify(sequenceSorted)
 
-  // count += countValidConfigs(substr.slice(1), sizes, requiredsRemaining, count)
-  const size = sizes[0]
-
-  for (let i = 0; i <= size; i++) {
-    const letter = substr[i]
-    if (!letter) return count
-
-    if (i === size) {
-      // found complete block
-      if (letter === "." || letter === "?") {
-        return countValidConfigs(
-          substr.slice(size + 1),
-          sizes.slice(1),
-          requiredsRemaining,
-          count,
-        )
-      } else {
-        return countValidConfigs(
-          substr.slice(1),
-          sizes,
-          requiredsRemaining,
-          count,
-        )
-      }
-    }
-    if (letter === "#") {
-      requiredsRemaining--
-    } else if (letter === ".") {
-      return countValidConfigs(
-        substr.slice(1),
-        sizes,
-        requiredsRemaining,
-        count,
-      )
-    }
+    return matches ? 1 : 0
   }
 
-  throw new Error("UNREACHABLE")
+  const dot = sequence.slice(0, idx) + "." + sequence.slice(idx + 1)
+  const hash = sequence.slice(0, idx) + "#" + sequence.slice(idx + 1)
+  return (
+    count +
+    countSequences(dot, sizes, count) +
+    countSequences(hash, sizes, count)
+  )
 }
 
 const part1 = (rawInput: string) => {
   const lines = parseInput(rawInput)
-  return lines.reduce((sum, { sequence, sizes }) => {
-    const requireds = sequence.split("#").length - 1
-    return sum + countValidConfigs(sequence, sizes, requireds)
-  }, 0)
+  return sum(
+    lines.map(({ sequence, sizes }) => countSequences(sequence, sizes)),
+  )
 }
 
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput)
-
-  return
+  input.forEach(({ sequence, sizes }, i) => {
+    const originalSequence = sequence
+    const originalSizes = [...sizes]
+    for (const _ of range(4)) {
+      input[i].sequence += "?" + originalSequence
+      input[i].sizes.push(...originalSizes)
+    }
+  })
+  // console.dir({ input }, { depth: null })
+  return sum(
+    input.map(({ sequence, sizes }) => countSequences(sequence, sizes)),
+  )
 }
 
 run({
@@ -84,26 +66,39 @@ run({
         `,
         expected: 4,
       },
-      // {
-      //   input: `
-      //   ???.### 1,1,3
-      //   .??..??...?##. 1,1,3
-      //   ?#?#?#?#?#?#?#? 1,3,1,6
-      //   ????.#...#... 4,1,1
-      //   ????.######..#####. 1,6,5
-      //   ?###???????? 3,2,1
-      //   `,
-      //   expected: 21,
-      // },
+      {
+        input: `
+        ???.### 1,1,3
+        .??..??...?##. 1,1,3
+        ?#?#?#?#?#?#?#? 1,3,1,6
+        ????.#...#... 4,1,1
+        ????.######..#####. 1,6,5
+        ?###???????? 3,2,1
+        `,
+        expected: 21,
+      },
     ],
     solution: part1,
   },
   part2: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `
+        ???.### 1,1,3
+        `,
+        expected: 1,
+      },
+      {
+        input: `
+        ???.### 1,1,3
+        .??..??...?##. 1,1,3
+        ?#?#?#?#?#?#?#? 1,3,1,6
+        ????.#...#... 4,1,1
+        ????.######..#####. 1,6,5
+        ?###???????? 3,2,1
+        `,
+        expected: 525152,
+      },
     ],
     solution: part2,
   },
