@@ -4,7 +4,7 @@ export class Point<T> {
     public y: number,
     public val: T,
     public wasVisited = false,
-  ) {}
+  ) { }
   public coords = () => [this.y, this.x]
   public isNumber = () => {
     switch (typeof this.val) {
@@ -36,10 +36,12 @@ export class Grid<T> {
   }
   public draw = () => {
     for (const row of this.points) {
+      let line = ""
       for (const col of row) {
-        process.stdout.write((col.val === " " ? "." : col.val) + "")
+        line += col.val
+        // process.stdout.write((col.val === " " ? "." : col.val) + "")
       }
-      console.log("")
+      console.log(line)
     }
   }
   public pointsList = () => this.points.flatMap(row => row)
