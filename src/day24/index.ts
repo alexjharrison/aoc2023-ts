@@ -14,28 +14,35 @@ const parseInput = (rawInput: string) => {
 const part1 = (rawInput: string) => {
   const input = parseInput(rawInput)
   let intersections = 0
-  const bounds = [7, 27]
+  // const bounds = [7, 27]
+  const bounds = [200000000000000, 400000000000000]
   for (let i = 0; i < input.length; i++) {
     for (let j = i + 1; j < input.length; j++) {
       const l1 = input[i]
       const l2 = input[j]
-      const numer =
-        l1.vy * l2.x0 - l1.vy * l1.x0 - l2.y0 * l1.vx + l1.vx * l1.y0
-      const denom = l1.vx * l2.vy - l1.vy * l2.vx
-      if (denom !== 0) {
-        const t = numer / denom
-        const x = l1.x0 + l1.vx * t
-        const y = l1.y0 + l1.vy * t
-        if (
-          x >= bounds[0] &&
-          x <= bounds[1] &&
-          y >= bounds[0] &&
-          y <= bounds[1]
-        ) {
-          console.log({ x, y })
-          intersections++
-        }
+      const m1 = l1.vy / l1.vx
+      const m2 = l2.vy / l2.vx
+      const b1 = l1.y0 - m1 * l1.x0
+      const b2 = l2.y0 - m2 * l2.x0
+      const x = (b2 - b1) / (m1 - m2)
+      const y = m1 * x + b1
+
+      if (x < bounds[0] || x > bounds[1] || y < bounds[0] || y > bounds[1]) {
+        // console.log("oob", { l1, l2 })
+        continue
       }
+
+      if (
+        (l1.vx > 0 && x < l1.x0) ||
+        (l1.vx < 0 && x > l1.x0) ||
+        (l2.vx > 0 && x < l2.x0) ||
+        (l2.vx < 0 && x > l2.x0)
+      ) {
+        // console.log("out of time", { l1, l2 })
+        continue
+      }
+
+      intersections++
     }
   }
   return intersections
@@ -73,5 +80,5 @@ run({
     solution: part2,
   },
   trimTestInputs: true,
-  onlyTests: true,
+  onlyTests: false,
 })
